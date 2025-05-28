@@ -1,9 +1,9 @@
-name: Deploy Spring Boot to EC2
+name: Deploy to EC2
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
@@ -13,6 +13,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
       - name: Setup SSH key
         run: |
           echo "${{ secrets.SSH_KEY }}" > id_rsa
@@ -20,11 +29,11 @@ jobs:
           mkdir -p ~/.ssh
           mv id_rsa ~/.ssh/id_rsa
 
-      - name: Copy jar file to EC2
+      - name: Copy JAR to EC2
         run: |
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa target/app.jar ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/app/app.jar
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa target/*.jar ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/app/app.jar
 
-      - name: Start Spring Boot app in EC2
+      - name: SSH and run app
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
             pkill -f 'java -jar' || true
