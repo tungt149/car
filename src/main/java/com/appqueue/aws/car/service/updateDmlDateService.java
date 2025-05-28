@@ -29,27 +29,27 @@ public class updateDmlDateService {
 
     }
 
-    @Scheduled(cron = "0 */5 * * * *") // phút chia hết cho 5
-    public void updateDmlDate(){
-        System.out.println("Update dml date");
-        Map<String, AttributeValue> expression = new HashMap<>();
-        expression.put(":oldDay", AttributeValue.builder().s(FIVE_MINUTES_AGO).build());
-        Expression fillterExpression = Expression
-                .builder()
-                .expression("dml_date < :oldDay")
-                .expressionValues(expression)
-                .build();
-
-        PageIterable<CarModel> pages = carTable.scan(c ->c.filterExpression(fillterExpression));
-        pages.stream().forEach(page -> {
-            List<CarModel> items = page.items();
-                for(CarModel carModelNeedUpdate : items) {
-                    carModelNeedUpdate.setDml_date(Instant.now().toString());
-                    carModelNeedUpdate.setName("tung sau khi update ne");
-                    carTable.putItem(carModelNeedUpdate);
-                }
-        });
-        System.out.println("End Update dml date");
-    }
+//    @Scheduled(cron = "0 */5 * * * *") // phút chia hết cho 5
+//    public void updateDmlDate(){
+//        System.out.println("Update dml date");
+//        Map<String, AttributeValue> expression = new HashMap<>();
+//        expression.put(":oldDay", AttributeValue.builder().s(FIVE_MINUTES_AGO).build());
+//        Expression fillterExpression = Expression
+//                .builder()
+//                .expression("dml_date < :oldDay")
+//                .expressionValues(expression)
+//                .build();
+//
+//        PageIterable<CarModel> pages = carTable.scan(c ->c.filterExpression(fillterExpression));
+//        pages.stream().forEach(page -> {
+//            List<CarModel> items = page.items();
+//                for(CarModel carModelNeedUpdate : items) {
+//                    carModelNeedUpdate.setDml_date(Instant.now().toString());
+//                    carModelNeedUpdate.setName("tung sau khi update ne");
+//                    carTable.putItem(carModelNeedUpdate);
+//                }
+//        });
+//        System.out.println("End Update dml date");
+//    }
 
 }
