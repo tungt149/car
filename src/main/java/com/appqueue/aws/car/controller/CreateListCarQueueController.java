@@ -1,7 +1,7 @@
 package com.appqueue.aws.car.controller;
 
 import com.appqueue.aws.car.repository.model.CarResponseModel;
-import com.appqueue.aws.car.service.ImplementService.CreateListServiceIm;
+import com.appqueue.aws.car.service.ImplementService.CreateListCarQueueServiceIm;
 import com.appqueue.aws.car.service.SqsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/cars")
-public class CreateListCardController {
+public class CreateListCarQueueController {
 
     @Autowired
-    private CreateListServiceIm service;
+    private CreateListCarQueueServiceIm service;
 
     @Autowired
     private SqsService sqsService;

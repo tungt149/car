@@ -4,6 +4,6 @@ import com.appqueue.aws.car.repository.model.CarResponseModel;
 
 import java.util.List;
 
-public interface CreateListServiceIm {
-    List<CarResponseModel> createListCard();
+public interface CreateListCarQueueServiceIm {
+    List<CarResponseModel> createListCarQueue();
 }
