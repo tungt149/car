@@ -23,7 +23,7 @@ public class CreateListCarQueueController {
 
     @GetMapping("/createListCard")
     public ResponseEntity<String> createListCard() {
-        List<CarResponseModel> carResponseModelList = service.createListCard();
+        List<CarResponseModel> carResponseModelList = service.createListCarQueue();
         sqsService.pushMessage(carResponseModelList);
         return ResponseEntity.ok("Success");
     }
