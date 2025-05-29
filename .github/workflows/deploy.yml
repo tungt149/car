@@ -22,20 +22,22 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
-      - name: Setup SSH key
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/car-project:latest .
+
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/car-project:latest
+
+      - name: SSH to EC2 and run Docker
         run: |
           echo "${{ secrets.SSH_KEY }}" > id_rsa
           chmod 600 id_rsa
-          mkdir -p ~/.ssh
-          mv id_rsa ~/.ssh/id_rsa
-
-      - name: Copy JAR to EC2
-        run: |
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa target/*.jar ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/app/app.jar
-
-      - name: SSH and run app
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
-            pkill -f 'java -jar' || true
-            nohup java -jar /home/ec2-user/app/app.jar > /home/ec2-user/app/app.log 2>&1 &
+          ssh -o StrictHostKeyChecking=no -i id_rsa ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+            docker pull ${{ secrets.DOCKER_USERNAME }}/car-project:latest
+            docker stop car-app || true
+            docker rm car-app || true
+            docker run -d --name car-app -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/car-project:latest
           EOF
