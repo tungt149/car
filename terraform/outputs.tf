@@ -1,3 +1,4 @@
-output "table_name" {
-  value = aws_dynamodb_table.car.name
+output "cluster_name" {
+  value = module.eks.cluster_name
 }
+
