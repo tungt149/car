@@ -3,7 +3,7 @@ name: Build and Deploy Multi-Env Docker Containers
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build-and-deploy:
