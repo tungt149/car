@@ -14,8 +14,6 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 @Configuration
 public class AwsConfig {
 
-    String accessKey = System.getenv("AWS_ACCESS_KEY_ID");
-    String secretKey = System.getenv("AWS_SECRET_ACCESS_KEY");
 
     @Value("${aws.region}")
     private String region;
