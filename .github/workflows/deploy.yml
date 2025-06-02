@@ -1,4 +1,4 @@
-name: Build and Deploy Multi-Env Docker Containers
+name: Build and Deploy Multi-Env Docker Container
 
 on:
   push:
