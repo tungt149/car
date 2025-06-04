@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - master
-
+env:
+  IMAGE_NAME: tungt149/car-project:latest
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -24,7 +24,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            docker pull tungt149/car-project:latest
+            docker pull IMAGE_NAME
 
             # Stop and remove old containers if exist
             docker stop myapp-dev || true
@@ -35,6 +35,6 @@ jobs:
             docker rm myapp-prod || true
 
             # Run new containers with different profiles and ports
-            docker run -d --name myapp-dev -e SPRING_PROFILES_ACTIVE=dev -p 8081:8080 tungt149/car-project:latest
-            docker run -d --name myapp-staging -e SPRING_PROFILES_ACTIVE=staging -p 8082:8080 tungt149/car-project:latest
-            docker run -d --name myapp-prod -e SPRING_PROFILES_ACTIVE=prod -p 8080:8080 tungt149/car-project:latest
+            docker run -d --name myapp-dev -e SPRING_PROFILES_ACTIVE=dev -p 8081:8080 IMAGE_NAME
+            docker run -d --name myapp-staging -e SPRING_PROFILES_ACTIVE=staging -p 8082:8080 IMAGE_NAME
+            docker run -d --name myapp-prod -e SPRING_PROFILES_ACTIVE=prod -p 8080:8080 IMAGE_NAME

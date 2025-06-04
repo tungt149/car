@@ -1,19 +1,40 @@
-- name: Deploy multi-env containers
-  uses: appleboy/ssh-action@v1
-  with:
-    host: ${{ secrets.SERVER_HOST }}
-    username: ${{ secrets.SERVER_USER }}
-    key: ${{ secrets.SERVER_SSH_KEY }}
-    script: |
-      docker pull tung/myapp:latest
-      docker stop myapp-dev || true
-      docker rm myapp-dev || true
-      docker run -d --name myapp-dev -e SPRING_PROFILES_ACTIVE=dev -p 8081:8080 tung/myapp:latest
+name: Build and Deploy Multi-Env Docker Container
 
-      docker stop myapp-staging || true
-      docker rm myapp-staging || true
-      docker run -d --name myapp-staging -e SPRING_PROFILES_ACTIVE=staging -p 8082:8080 tung/myapp:latest
+on:
+  push:
+    branches:
+      - master
 
-      docker stop myapp-prod || true
-      docker rm myapp-prod || true
-      docker run -d --name myapp-prod -e SPRING_PROFILES_ACTIVE=prod -p 8080:8080 tung/myapp:latest
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build and push Docker image with Jib
+        run: mvn compile jib:build -Ddocker.username=${{ secrets.DOCKER_USERNAME }} -Ddocker.password=${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Deploy multi-env containers on EC2 via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            docker pull tungt149/car-project:latest
+
+            # Stop and remove old containers if exist
+            docker stop myapp-dev || true
+            docker rm myapp-dev || true
+            docker stop myapp-staging || true
+            docker rm myapp-staging || true
+            docker stop myapp-prod || true
+            docker rm myapp-prod || true
+
+            # Run new containers with different profiles and ports
+            docker run -d --name myapp-dev -e SPRING_PROFILES_ACTIVE=dev -p 8081:8080 tungt149/car-project:latest
+            docker run -d --name myapp-staging -e SPRING_PROFILES_ACTIVE=staging -p 8082:8080 tungt149/car-project:latest
+            docker run -d --name myapp-prod -e SPRING_PROFILES_ACTIVE=prod -p 8080:8080 tungt149/car-project:latest
